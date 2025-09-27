@@ -1,17 +1,17 @@
 {
   "name": "rustalk",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Modular P2P communication platform - reach (core) + rus (CLI) + rustalk (unified experience)",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
-    "rustalk": "./bin/rustalk.ts"
+    "rustalk": "dist/bin/rustalk.js"
   },
   "files": [
-    "bin/rustalk.ts",
-    "scripts/postinstall.ts",
+    "dist/bin/rustalk.js",
+    "dist/scripts/postinstall.js",
     "target/release/rustalk_cli*",
     "target/release/rus*",
     "target/release/*.dll",
@@ -22,16 +22,17 @@
     "CONTRIBUTING.md"
   ],
   "scripts": {
-    "build": "npm run build:rust",
+    "build": "npm run build:ts && npm run build:rust",
+    "build:ts": "tsc",
     "build:rust": "cargo build --release --workspace",
     "dev": "bun run --watch src/index.ts",
     "start": "npx tsx bin/rustalk.ts",
     "cli": "bun run src/index.ts",
     "test": "bun test tests/**/*.test.ts",
     "test:rust": "cargo test --workspace",
-    "clean": "rm -rf target/ dist/",
-    "prepublishOnly": "npm run build:rust",
-    "postinstall": "npx tsx scripts/postinstall.ts",
+    "clean": "powershell -Command \"Remove-Item -Recurse -Force target, dist -ErrorAction SilentlyContinue\"",
+    "prepublishOnly": "npm run build",
+    "postinstall": "node dist/scripts/postinstall.js",
     "test:cli": "npx tsx bin/rustalk.ts --help"
   },
   "keywords": [
@@ -59,10 +60,10 @@
     "tsx": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
     "@types/bun": "latest",
     "@types/inquirer": "^9.0.0",
-    "typescript": "^5.0.0"
+    "@types/node": "^20.19.17",
+    "typescript": "^5.9.2"
   },
   "peerDependencies": {
     "typescript": "^5"

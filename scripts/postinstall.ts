@@ -1,5 +1,3 @@
-#!/usr/bin/env npx tsx
-
 import { execSync } from 'child_process';
 import { existsSync, mkdirSync, unlinkSync, copyFileSync, chmodSync } from 'fs';
 import { join, dirname } from 'path';
@@ -19,7 +17,7 @@ interface BinaryConfig {
   rustalk_cli: string;
 }
 
-const binaries: Record<string, BinaryConfig> = {
+const binaries = {
   win32: {
     rus: 'rus.exe',
     rustalk_cli: 'rustalk_cli.exe'
@@ -32,9 +30,11 @@ const binaries: Record<string, BinaryConfig> = {
     rus: 'rus', 
     rustalk_cli: 'rustalk_cli'
   }
-};
+} as const;
 
-const targetBinaries: BinaryConfig = binaries[currentPlatform] ?? binaries.linux;
+type PlatformKey = keyof typeof binaries;
+const platformKey: PlatformKey = currentPlatform === 'win32' ? 'win32' : currentPlatform === 'darwin' ? 'darwin' : 'linux';
+const targetBinaries = binaries[platformKey];
 
 // Create symlinks or copies for rus binary to be accessible
 const projectRoot = dirname(__dirname);
