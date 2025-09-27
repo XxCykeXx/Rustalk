@@ -1045,6 +1045,7 @@ dependencies = [
  "hex",
  "log",
  "rand",
+ "regex",
  "serde",
  "serde_json",
  "sha2",
@@ -1110,7 +1111,6 @@ dependencies = [
  "env_logger",
  "log",
  "reach",
- "rustalk",
  "tokio",
 ]
 

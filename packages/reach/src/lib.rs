@@ -4,13 +4,17 @@ pub mod network;
 pub mod message;
 pub mod peer;
 pub mod config;
+pub mod session;
+pub mod cli;
 
 pub use crypto::{CryptoEngine, KeyPair};
 pub use identity::{Identity, UserCredentials};
 pub use network::{NetworkManager, PeerConnection};
-pub use message::{Message, MessageType, EncryptedMessage};
+pub use message::{Message, MessageType};
 pub use peer::{Peer, PeerStatus, PeerPingStatus};
 pub use config::{Config, save_config, load_config, config_exists, get_config_file};
+pub use session::{SessionManager, ChatSession};
+pub use cli::{CliOperations, UserManager, PathManager};
 
 use anyhow::Result;
 use std::sync::Arc;

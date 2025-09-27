@@ -8,11 +8,12 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use env_logger;
 
-use reach::{load_config, config_exists, get_config_file};
+use reach::{load_config, config_exists, get_config_file, CliOperations, UserManager, PathManager, SessionManager};
 use crate::setup::{setup_user, setup_user_with_args};
 use crate::app::ChatApp;
-use crate::path_manager::PathManager;
-use crate::user_manager::{list_all_users, switch_user, remove_user, register_current_user};
+// Remove local implementations that are now in reach
+// use crate::path_manager::PathManager;
+// use crate::user_manager::{list_all_users, switch_user, remove_user, register_current_user};
 
 #[derive(Parser)]
 #[command(name = "rustalk")]
@@ -77,34 +78,47 @@ async fn main() -> Result<()> {
     
     match cli.command {
         Some(Commands::Setup { email, name, password }) => {
-            if let (Some(email), Some(name), Some(password)) = (email, name, password) {
-                setup_user_with_args(email, name, password).await?;
-            } else {
-                setup_user().await?;
+            match CliOperations::setup_user(email, name, password).await {
+                Ok(credentials) => {
+                    println!("✅ Setup complete for {}", credentials.name);
+                    println!("📧 Email: {}", credentials.email);
+                }
+                Err(e) => {
+                    eprintln!("❌ Setup failed: {}", e);
+                    std::process::exit(1);
+                }
             }
         }
         Some(Commands::Chat { port }) => {
-            if !config_exists() {
-                println!("🔐 No configuration found. Please run 'rustalk setup' first.");
-                return Ok(());
+            println!("🚀 Starting advanced chat session on port {}...", port);
+            match CliOperations::start_chat_session(port).await {
+                Ok(session_manager) => {
+                    // For rustalk, we'll use the advanced ChatApp UI
+                    if config_exists() {
+                        let config = load_config()?;
+                        let mut app = ChatApp::from_config(config).await?;
+                        app.start_server(port).await?;
+                    } else {
+                        println!("🔐 No configuration found. Please run 'rustalk setup' first.");
+                        return Ok(());
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to start chat: {}", e);
+                    println!("💡 Try running 'rustalk setup' first");
+                    std::process::exit(1);
+                }
             }
-            
-            let config = load_config()?;
-            let mut app = ChatApp::from_config(config).await?;
-            app.start_server(port).await?;
         }
         Some(Commands::Info) => {
-            if !config_exists() {
-                println!("No configuration found. Please run 'rustalk setup' first.");
-                return Ok(());
+            match CliOperations::get_user_info().await {
+                Ok(info) => println!("{}", info),
+                Err(e) => {
+                    eprintln!("❌ Failed to get user info: {}", e);
+                    println!("� Run 'rustalk setup' first to configure credentials");
+                    std::process::exit(1);
+                }
             }
-            
-            let config = load_config()?;
-            println!("🆔 User ID: {}", config.identity.user_id);
-            println!("📧 Email: {}", config.identity.email);
-            println!("👤 Display Name: {}", config.identity.get_display_name());
-            println!("🔑 Public Key: {}", config.identity.keypair.public_key);
-            println!("🌐 Default Port: {}", config.default_port);
         }
         Some(Commands::Status) => {
             if !config_exists() {
@@ -139,72 +153,102 @@ async fn main() -> Result<()> {
             }
         }
         Some(Commands::Reset) => {
-            if let Ok(config_file) = get_config_file() {
-                if config_file.exists() {
-                    std::fs::remove_file(config_file)?;
-                    println!("✅ Configuration reset. Please run 'rustalk setup' to create new credentials.");
-                } else {
-                    println!("No configuration found to reset.");
+            match CliOperations::reset_config().await {
+                Ok(message) => {
+                    println!("✅ {}", message);
+                    println!("💡 Run 'rustalk setup' to create new credentials");
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to reset config: {}", e);
+                    std::process::exit(1);
                 }
             }
         }
         Some(Commands::AddPath) => {
-            let path_manager = PathManager::new()?;
-            
-            if path_manager.is_in_path() {
-                println!("✅ Rustalk is already in your PATH");
-                println!("📁 Location: {}", path_manager.get_install_location().display());
-            } else {
-                println!("➕ Adding Rustalk to system PATH...");
-                match path_manager.add_to_path() {
-                    Ok(()) => {
-                        // Register current user if config exists
-                        if config_exists() {
-                            if let Err(e) = register_current_user() {
-                                eprintln!("⚠️  Warning: Failed to register user: {}", e);
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        eprintln!("❌ Failed to add to PATH: {}", e);
-                        std::process::exit(1);
-                    }
+            match PathManager::add_to_path() {
+                Ok(message) => {
+                    println!("✅ {}", message);
+                    println!("💡 You can now run 'rustalk' from anywhere in your terminal");
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to add to PATH: {}", e);
+                    std::process::exit(1);
                 }
             }
         }
         Some(Commands::RemovePath) => {
-            let path_manager = PathManager::new()?;
-            
-            if !path_manager.is_in_path() {
-                println!("ℹ️  Rustalk is not in your PATH");
-            } else {
-                println!("➖ Removing Rustalk from system PATH...");
-                path_manager.remove_from_path()?;
+            match PathManager::remove_from_path() {
+                Ok(message) => {
+                    println!("✅ {}", message);
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to remove from PATH: {}", e);
+                    std::process::exit(1);
+                }
             }
         }
         Some(Commands::CheckPath) => {
-            let path_manager = PathManager::new()?;
-            
-            println!("🔍 PATH Check Results:");
-            println!("📁 Install Location: {}", path_manager.get_install_location().display());
-            println!("🖥️  Platform: {:?}", path_manager.get_platform());
-            
-            if path_manager.is_in_path() {
-                println!("✅ Rustalk is in your PATH");
-                println!("💡 You can run 'rustalk' from anywhere in your terminal");
-            } else {
-                println!("❌ Rustalk is NOT in your PATH");
-                println!("💡 Run 'rustalk add-path' to add it to your PATH");
+            match PathManager::check_in_path() {
+                Ok(message) => {
+                    println!("{}", message);
+                    if message.contains("NOT in PATH") {
+                        println!("� Run 'rustalk add-path' to add it to your PATH");
+                    } else {
+                        println!("💡 You can run 'rustalk' from anywhere in your terminal");
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to check PATH: {}", e);
+                    std::process::exit(1);
+                }
             }
         }
         Some(Commands::ListUsers) => {
-            list_all_users()?;
+            let user_manager = UserManager::new()?;
+            match user_manager.list_users() {
+                Ok(users) => {
+                    if users.is_empty() {
+                        println!("👤 No registered users found");
+                        println!("💡 Run 'rustalk setup' to register a new user");
+                    } else {
+                        println!("👥 Registered users ({}):", users.len());
+                        for user in users {
+                            let current = if let Ok(current_email) = user_manager.get_current_user() {
+                                if current_email == user.email { " (current)" } else { "" }
+                            } else { "" };
+                            println!("  📧 {} - {}{}", user.email, user.name, current);
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to list users: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
         Some(Commands::SwitchUser { user_id }) => {
-            switch_user(&user_id)?;
+            let user_manager = UserManager::new()?;
+            match user_manager.switch_user(&user_id) {
+                Ok(()) => {
+                    println!("✅ Switched to user: {}", user_id);
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to switch user: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
         Some(Commands::RemoveUser { user_id }) => {
-            remove_user(&user_id)?;
+            let user_manager = UserManager::new()?;
+            match user_manager.remove_user(&user_id) {
+                Ok(()) => {
+                    println!("✅ Removed user: {}", user_id);
+                }
+                Err(e) => {
+                    eprintln!("❌ Failed to remove user: {}", e);
+                    std::process::exit(1);
+                }
+            }
         }
         None => {
             // Default behavior - try to start chat or show help

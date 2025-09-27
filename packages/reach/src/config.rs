@@ -29,6 +29,7 @@ impl Default for Config {
         Config {
             identity: Identity::new(crate::identity::UserCredentials {
                 email: "anonymous@rustalk.local".to_string(),
+                name: "Anonymous".to_string(),
                 password: "default".to_string(),
             }).expect("Failed to create default identity"),
             default_port: 5000,

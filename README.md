@@ -1,21 +1,38 @@
 # Rustalk 🦀💬
 
-A secure, peer-to-peer terminal chat application built with Rust and TypeScript.
+**Modular P2P Communication Platform** - Secure terminal chat with end-to-end encryption
 
-> This project is in active development. Features and commands may change frequently.
+> 🚀 **New Architecture**: Now featuring a clean three-tier modular design for maximum flexibility!
 
+## 🏗️ Architecture Overview
 
-## About
+Rustalk has been completely restructured into a modular platform:
 
-Rustalk enables secure, end-to-end encrypted communication between users without requiring a central server. The application features cross-platform compatibility and supports both native Rust binaries and Node.js integration via NAPI bindings.
+```
+┌─────────────────────────────────────────────────┐
+│                    rustalk                      │
+│              (Unified Experience)               │
+├─────────────────────────────────────────────────┤
+│                      rus                        │
+│               (CLI Operations)                  │
+├─────────────────────────────────────────────────┤
+│                     reach                       │
+│           (Core P2P Networking)                 │
+└─────────────────────────────────────────────────┘
+```
 
-## Architecture
+### 📦 **Packages**
 
-Rustalk is built with a modular three-crate architecture:
+- 🌐 **`reach`**: Core P2P networking, cryptography, and session management
+- ⚡ **`rus`**: Direct CLI interface for all user operations  
+- 🚀 **`rustalk`**: Unified experience combining both reach and rus capabilities
 
-- 📚 **`reach`**: Core P2P networking and encryption library
-- 🦀 **`rustalk`**: Main chat application library (depends on `reach`)
-- ⚡ **`rus`**: CLI wrapper and utilities (depends on both `reach` and `rustalk`)
+### 🎯 **Design Philosophy**
+
+- **Single Install**: One command installs everything (`cargo install rustalk` or `npm install rustalk`)  
+- **Dual Interface**: Use `rus` for direct CLI operations or `rustalk` for unified experience
+- **Modular Core**: Each component can be used independently
+- **Clean Dependencies**: rus → reach, rustalk → reach (no circular dependencies)
 
 ## Features
 
@@ -28,126 +45,159 @@ Rustalk is built with a modular three-crate architecture:
 - ⚡ **High Performance**: Built with Rust for maximum speed and safety
 - 📦 **Modular Design**: Each component can be used independently
 
-## Usage
+## 🚀 Installation & Usage
 
-### Installation
+### Quick Install
 
-#### Option 1: Install from NPM (Recommended)
+Choose your preferred installation method:
 
+#### 📦 NPM (Recommended - TypeScript)
 ```bash
-# Install the complete Rustalk package (includes both rustalk and rus binaries)
 npm install -g rustalk
 ```
 
-This will install both:
-- `rustalk` - Main chat application with TypeScript CLI
-- `rus` - Rust CLI wrapper
-
-#### Option 2: Install from Cargo (Individual Components)
-
+#### 🦀 Cargo (Rust Native)  
 ```bash
-# Install all components
-cargo install reach rustalk rus
-
-# Or install individually as needed:
-cargo install reach      # Core networking library
-cargo install rustalk    # Main chat application  
-cargo install rus        # CLI wrapper and utilities
+cargo install rustalk
 ```
 
-#### Option 3: Build from Source
+**After installation you get**:
+- 🚀 **`rustalk`** - Main TypeScript interface (works everywhere)
+- ⚡ **`rus`** - Direct Rust CLI (available after setup)
+
+### 🏁 Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/muhammad-fiaz/Rustalk.git
-cd Rustalk
+# 1. Set up your identity
+rustalk setup
+# or: rus setup
+
+# 2. Start chatting
+rustalk chat
+# or: rus chat
+
+# 3. Connect to friends
+rustalk connect 192.168.1.100:5000
+# or: rus connect 192.168.1.100:5000
+```
+
+### 🔧 Advanced Installation
+
+#### From Source
+```bash
+git clone https://github.com/muhammad-fiaz/rustalk.git
+cd rustalk
+cargo build --release --workspace
 
 # Install dependencies and build
 npm install
 npm run build
 ```
 
-## Development
+## 💻 Development
 
-The project uses local path dependencies during development:
-- `rustalk` uses local `reach` from `../packages/reach`
-- `rus` uses local `reach` and `rustalk` from their relative paths
+### Architecture
+Rustalk uses a **TypeScript-first** approach:
+- **bin/rustalk.ts** - Main TypeScript CLI interface
+- **packages/reach/** - Core P2P networking library (Rust)
+- **packages/rus/** - Direct CLI operations (Rust)
+- **rustalk/** - Advanced application (Rust)
 
-This allows for easy development and testing. When publishing to crates.io, dependencies are temporarily changed to use published versions - see `PUBLISHING-ORDER.md` for details.
-
-### Setup
-
+### Local Development
 ```bash
-# Initial setup (creates user configuration)
-bun run src/index.ts setup
+# Clone and setup
+git clone https://github.com/muhammad-fiaz/rustalk.git
+cd rustalk
+npm install
+
+# Build Rust components
+cargo build --release --workspace
+
+# Run directly with TypeScript
+npx tsx bin/rustalk.ts setup
+npx tsx bin/rustalk.ts chat
 ```
 
 ### Commands
 
-#### Basic Commands
+#### Basic Commands (TypeScript Interface)
 ```bash
-# Start the chat application
-bun run src/index.ts start
+# Setup your identity
+rustalk setup
 
-# Connect to a peer
-bun run src/index.ts connect <peer-address>
+# Start P2P chat
+rustalk chat
 
-# Check peer status
-bun run src/index.ts status
+# Connect to a peer directly
+rustalk connect <ip:port>
+
+# Show user information
+rustalk info
+
+# Send quick message
+rustalk send <message> --to <peer>
+
+# List connected peers
+rustalk peers
 
 # Show help
-bun run src/index.ts --help
-
-# Show version
-bun run src/index.ts --version
-
-# Run tests
-bun run src/index.ts test
+rustalk --help
 ```
 
-#### PATH Management
+#### Alternative: Direct Rust CLI
 ```bash
-# Add Rustalk to system PATH (Windows/Linux/macOS)
-bun run src/index.ts add-path
+# After setup, you can also use rus directly
+rus chat
+rus connect <ip:port>
+rus info
+```
 
-# Remove Rustalk from system PATH
-bun run src/index.ts remove-path
+#### System Management
+```bash
+# Add to system PATH
+rustalk add-path
 
-# Check if Rustalk is in system PATH
-bun run src/index.ts check-path
+# Remove from system PATH
+rustalk remove-path
+
+# Reset all configuration
+rustalk reset
 ```
 
 #### User Management
 ```bash
 # List all registered users
-bun run src/index.ts list-users
+rustalk list-users
 
-# Switch to a different user
-bun run src/index.ts switch-user <user-id>
+# Switch to different user
+rustalk switch-user <email>
 
-# Remove a user from registry
-bun run src/index.ts remove-user <user-id>
+# Set display name
+rustalk nick <name>
 ```
 
 ### Configuration
 
-User configuration is stored in `~/.rustalk/config.json`. This includes:
-- User identity and keys
-- Display name
-- Peer connections
-- Application settings
+**User Data**: Stored in `~/.rustalk/config.json`
+- User identity and encryption keys
+- Display name and preferences  
+- Peer connections history
 
-**Multi-User Support**: Rustalk supports multiple user accounts:
-- User registry stored in `~/.rustalk/users.json`
-- Switch between different identities
+**Multi-User Support**: 
+- Registry: `~/.rustalk/users.json`
+- Switch between different identities with `rustalk switch-user`
 - Each user has separate encryption keys
 
-**Cross-Platform PATH Management**: 
-- Automatically detects your OS (Windows/Linux/macOS)
-- Adds Rustalk binary to system PATH
-- Works with PowerShell, Bash, Zsh, and other shells
+**Cross-Platform**: 
+- Works on Windows, macOS, and Linux
+- TypeScript interface provides universal compatibility
+- Rust binaries optimized for each platform
 
-**Note**: Configuration persists across updates and reinstalls. If you forget your password, delete the `~/.rustalk` folder to create a new identity.
+**Two Ways to Use**:
+- 🎨 **`rustalk`** - TypeScript interface with enhanced UX
+- ⚡ **`rus`** - Direct Rust CLI for power users
+
+**Note**: Configuration persists across updates. Reset with `rustalk reset` if needed.
 
 ## License
 

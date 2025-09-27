@@ -42,6 +42,32 @@ impl Message {
         }
     }
 
+    // Alternative constructor for compatibility with session manager
+    pub fn from_content(
+        message_type: MessageType,
+        content: String,
+        sender_name: String,
+        target_peer: Option<String>,
+    ) -> Self {
+        let sender_id = Uuid::new_v4(); // This should come from identity in real usage
+        let recipient_id = target_peer.and_then(|_| Some(Uuid::new_v4())); // This should be resolved from peer lookup
+        
+        Message {
+            id: Uuid::new_v4(),
+            sender_id,
+            recipient_id,
+            message_type,
+            content,
+            timestamp: Utc::now(),
+            sender_name,
+        }
+    }
+
+    // Getter methods for compatibility
+    pub fn sender(&self) -> &str {
+        &self.sender_name
+    }
+
     pub fn text_message(
         sender_id: Uuid,
         recipient_id: Uuid,

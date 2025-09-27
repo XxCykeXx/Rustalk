@@ -8,6 +8,7 @@ use hex;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserCredentials {
     pub email: String,
+    pub name: String,
     pub password: String,
 }
 
@@ -53,7 +54,7 @@ impl Identity {
         Ok(Identity {
             user_id,
             email: credentials.email,
-            display_name: None,
+            display_name: Some(credentials.name),
             keypair: keypair_serialized,
             password_hash: password_hash_b64,
         })

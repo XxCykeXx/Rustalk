@@ -16,10 +16,6 @@ path = "src/main.rs"
 
 [dependencies]
 reach = { path = "../reach" }
-rustalk = { path = "../../rustalk" }
-# For publishing, use these instead:
-# reach = "0.0.0"
-# rustalk = "0.0.0"
 tokio = { workspace = true }
 clap = { workspace = true }
 anyhow = { workspace = true }

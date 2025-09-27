@@ -314,8 +314,16 @@ impl NetworkManager {
         Ok(())
     }
 
-    pub async fn shutdown(&mut self) {
-        info!("Shutting down network manager...");
+    pub async fn stop_listening(&self) -> Result<()> {
+        info!("Stopping listening for new connections...");
+        // Note: In a real implementation, you'd want to store the listener handle
+        // and be able to stop it. For now, we'll just shutdown existing connections.
+        self.shutdown_connections().await;
+        Ok(())
+    }
+
+    pub async fn shutdown_connections(&self) {
+        info!("Shutting down all connections...");
         
         let mut connections = self.connections.write().await;
         for (peer_id, mut connection) in connections.drain() {
@@ -323,6 +331,12 @@ impl NetworkManager {
             info!("Disconnected from peer {}", peer_id);
         }
         
+        info!("All connections shut down");
+    }
+
+    pub async fn shutdown(&mut self) {
+        info!("Shutting down network manager...");
+        self.shutdown_connections().await;
         info!("Network manager shutdown complete");
     }
 }

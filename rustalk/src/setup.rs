@@ -54,28 +54,33 @@ pub async fn setup_user() -> Result<()> {
         println!("🔒 Generated secure password for you.");
     }
 
-    // Create identity
-    let credentials = UserCredentials { email, password };
-    let identity = Identity::new(credentials)?;
-
-    // Get display name (optional)
-    print!("👤 Enter display name (optional, press Enter to skip): ");
+    // Get display name (optional) - ask first to use in credentials
+    print!("👤 Enter display name (optional, press Enter to use email prefix): ");
     io::stdout().flush()?;
     let mut display_name = String::new();
     io::stdin().read_line(&mut display_name)?;
-    display_name = display_name.trim().to_string();
+    let display_name = display_name.trim();
+    let name = if display_name.is_empty() {
+        email.split('@').next().unwrap_or("User").to_string()
+    } else {
+        display_name.to_string()
+    };
 
-    let mut config = Config {
+    // Create identity
+    let credentials = UserCredentials { 
+        email: email.clone(),
+        name,
+        password 
+    };
+    let identity = Identity::new(credentials)?;
+
+    let config = Config {
         identity,
         default_port: 5000,
         auto_accept_connections: false,
         max_peers: 10,
         log_level: "info".to_string(),
     };
-
-    if !display_name.is_empty() {
-        config.identity.set_display_name(display_name);
-    }
 
     // Save configuration
     save_config(&config)?;
@@ -108,7 +113,11 @@ pub async fn setup_user_with_args(email: String, display_name: String, password:
     }
 
     // Create identity
-    let credentials = UserCredentials { email, password };
+    let credentials = UserCredentials { 
+        email: email.clone(),
+        name: display_name.clone(),
+        password 
+    };
     let identity = Identity::new(credentials)?;
 
     let mut config = Config {

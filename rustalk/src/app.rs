@@ -54,7 +54,8 @@ impl ChatApp {
         
         // Create credentials from config identity
         let credentials = UserCredentials { 
-            email: config.identity.email.clone(), 
+            email: config.identity.email.clone(),
+            name: config.identity.get_display_name(),
             password: "".to_string() // Config-based apps don't need password verification
         };
         let engine = ReachEngine::new(credentials).await?;
@@ -73,7 +74,11 @@ impl ChatApp {
     pub async fn new(email: String, password: String, _port: u16) -> Result<Self> {
         info!("🚀 Initializing Rustalk application...");
         
-        let credentials = UserCredentials { email, password };
+        let credentials = UserCredentials { 
+            email: email.clone(),
+            name: email.split('@').next().unwrap_or("User").to_string(),
+            password 
+        };
         let engine = ReachEngine::new(credentials).await?;
         let config = engine.get_config().await?;
         
