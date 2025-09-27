@@ -2,7 +2,8 @@
 
 A secure, peer-to-peer terminal chat application built with Rust and TypeScript.
 
-**Repository:** https://github.com/muhammad-fiaz/Rustalk/tree/main
+> This project is in active development. Features and commands may change frequently.
+
 
 ## About
 
