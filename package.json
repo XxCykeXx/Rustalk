@@ -1,0 +1,61 @@
+{
+  "name": "rustalk",
+  "version": "0.1.0",
+  "description": "Secure P2P terminal chat application with end-to-end encryption",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "bin": {
+    "rustalk": "./bin/rustalk.js"
+  },
+  "scripts": {
+    "build": "napi build --platform --release rustalk",
+    "build:debug": "napi build --platform rustalk",
+    "build:rust": "cargo build --release",
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "start:rust": "./target/release/rustalk",
+    "cli": "bun run packages/rus/src/main.ts",
+    "test": "bun test tests/**/*.test.ts",
+    "test:rust": "cargo test",
+    "install:rust": "cargo install --path packages/rus",
+    "install:global": "npm install -g .",
+    "install-all": "bun install && npm run build",
+    "postinstall": "npm run build"
+  },
+  "keywords": [
+    "p2p",
+    "chat",
+    "encrypted",
+    "terminal",
+    "rust",
+    "secure",
+    "messaging"
+  ],
+  "author": "Rustalk Team",
+  "license": "MIT",
+  "dependencies": {
+    "@napi-rs/cli": "^2.18.0",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "inquirer": "^9.2.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/bun": "latest",
+    "@types/inquirer": "^9.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rustalk/rustalk-workflow"
+  }
+}

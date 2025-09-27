@@ -1,0 +1,20 @@
+[package]
+name = "rus"
+version = "0.1.0"
+edition = "2021"
+description = "CLI wrapper for Rustalk P2P chat"
+license = "MIT"
+authors = ["Rustalk Team"]
+
+[[bin]]
+name = "rus"
+path = "src/main.rs"
+
+[dependencies]
+reach = { path = "../reach" }
+rustalk = { path = "../../rustalk" }
+tokio = { workspace = true }
+clap = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }
+env_logger = { workspace = true }
