@@ -1,28 +1,34 @@
 {
   "name": "rustalk",
-  "version": "0.1.0",
-  "description": "Secure P2P terminal chat application with end-to-end encryption",
+  "version": "0.0.0",
+  "description": "Secure P2P terminal chat application with end-to-end encryption (includes rustalk and rus binaries)",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
-    "rustalk": "./bin/rustalk.js"
+    "rustalk": "./bin/rustalk.js",
+    "rus": "./target/release/rus"
   },
+  "files": [
+    "bin/rustalk.js",
+    "target/release/rustalk_cli*",
+    "target/release/rus*",
+    "src/",
+    "README.md"
+  ],
   "scripts": {
-    "build": "napi build --platform --release rustalk",
-    "build:debug": "napi build --platform rustalk",
-    "build:rust": "cargo build --release",
+    "build": "npm run build:ts && npm run build:rust",
+    "build:ts": "bun build bin/rustalk.ts --outdir bin --target node",
+    "build:rust": "cargo build --release --workspace",
     "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "start:rust": "./target/release/rustalk",
-    "cli": "bun run packages/rus/src/main.ts",
+    "start": "node bin/rustalk.js",
+    "cli": "bun run src/index.ts",
     "test": "bun test tests/**/*.test.ts",
-    "test:rust": "cargo test",
-    "install:rust": "cargo install --path packages/rus",
-    "install:global": "npm install -g .",
-    "install-all": "bun install && npm run build",
-    "postinstall": "npm run build"
+    "test:rust": "cargo test --workspace",
+    "clean": "rm -rf target/ dist/ bin/*.js",
+    "prepublishOnly": "npm run build",
+    "postinstall": "npm run build:rust"
   },
   "keywords": [
     "p2p",
@@ -31,7 +37,9 @@
     "terminal",
     "rust",
     "secure",
-    "messaging"
+    "messaging",
+    "rus",
+    "cli"
   ],
   "author": "Rustalk Team",
   "license": "MIT",
@@ -56,6 +64,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rustalk/rustalk-workflow"
+    "url": "https://github.com/muhammad-fiaz/Rustalk"
+  },
+  "homepage": "https://github.com/muhammad-fiaz/Rustalk",
+  "bugs": {
+    "url": "https://github.com/muhammad-fiaz/Rustalk/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

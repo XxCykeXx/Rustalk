@@ -9,6 +9,14 @@ A secure, peer-to-peer terminal chat application built with Rust and TypeScript.
 
 Rustalk enables secure, end-to-end encrypted communication between users without requiring a central server. The application features cross-platform compatibility and supports both native Rust binaries and Node.js integration via NAPI bindings.
 
+## Architecture
+
+Rustalk is built with a modular three-crate architecture:
+
+- 📚 **`reach`**: Core P2P networking and encryption library
+- 🦀 **`rustalk`**: Main chat application library (depends on `reach`)
+- ⚡ **`rus`**: CLI wrapper and utilities (depends on both `reach` and `rustalk`)
+
 ## Features
 
 - 🔐 **End-to-End Encryption**: All messages are encrypted using industry-standard cryptography
@@ -18,22 +26,54 @@ Rustalk enables secure, end-to-end encrypted communication between users without
 - 🔑 **Identity Management**: Secure key generation and management
 - 📡 **Network Discovery**: Automatic peer detection and connection
 - ⚡ **High Performance**: Built with Rust for maximum speed and safety
+- 📦 **Modular Design**: Each component can be used independently
 
 ## Usage
 
 ### Installation
+
+#### Option 1: Install from NPM (Recommended)
+
+```bash
+# Install the complete Rustalk package (includes both rustalk and rus binaries)
+npm install -g rustalk
+```
+
+This will install both:
+- `rustalk` - Main chat application with TypeScript CLI
+- `rus` - Rust CLI wrapper
+
+#### Option 2: Install from Cargo (Individual Components)
+
+```bash
+# Install all components
+cargo install reach rustalk rus
+
+# Or install individually as needed:
+cargo install reach      # Core networking library
+cargo install rustalk    # Main chat application  
+cargo install rus        # CLI wrapper and utilities
+```
+
+#### Option 3: Build from Source
 
 ```bash
 # Clone the repository
 git clone https://github.com/muhammad-fiaz/Rustalk.git
 cd Rustalk
 
-# Install dependencies
-bun install
-
-# Build the project
-bun run src/index.ts build
+# Install dependencies and build
+npm install
+npm run build
 ```
+
+## Development
+
+The project uses local path dependencies during development:
+- `rustalk` uses local `reach` from `../packages/reach`
+- `rus` uses local `reach` and `rustalk` from their relative paths
+
+This allows for easy development and testing. When publishing to crates.io, dependencies are temporarily changed to use published versions - see `PUBLISHING-ORDER.md` for details.
 
 ### Setup
 

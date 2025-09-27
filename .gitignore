@@ -1,23 +1,72 @@
-/target
-/node_modules
-.DS_Store
-*.log
-.env
-.idea
-.vscode
-*.iml
-out/
+# Rust
+/target/
+**/*.rs.bk
+*.pdb
+rust-project.json
+
+# Node.js / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+*.tgz
+
+# Bun
+.bun/
+bun.lockb
+
+# Build outputs
 dist/
 build/
-*.class
-*.exe
-*.dll
-*.so
-*.dylib
-*.obj
-*.pyc
-*.pyo
-*.pyd
-*.py
-__pycache__/
+out/
+*.js.map
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.iml
 *.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Testing
+coverage/
+.nyc_output/
+
+# Cache directories
+.cache
+.parcel-cache
+.npm
+.eslintcache
+
+# Output of packaging
+*.tgz

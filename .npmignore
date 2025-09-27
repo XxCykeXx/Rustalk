@@ -1,0 +1,60 @@
+# Source code (we only need binaries for npm)
+packages/*/src/
+rustalk/src/
+*.rs
+build.rs
+
+# Cargo files (except for postinstall build)
+packages/*/Cargo.toml
+rustalk/Cargo.toml
+Cargo.lock
+.cargo/
+
+# Development build artifacts
+target/debug/
+target/incremental/
+target/deps/
+target/build/
+target/examples/
+target/.rustc_info.json
+target/CACHEDIR.TAG
+
+# Keep only release binaries
+target/release/*.d
+target/release/*.rlib
+target/release/*.pdb
+target/release/*.exp
+target/release/*.lib
+target/release/*.dll
+target/release/build/
+target/release/deps/
+target/release/examples/
+target/release/incremental/
+
+# TypeScript source (keep compiled JS)
+bin/*.ts
+!bin/*.js
+
+# Development files
+tests/
+*.test.*
+.git/
+.github/
+node_modules/
+.bun/
+bun.lockb
+tsconfig.json
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation (except README)
+docs/
+CONTRIBUTING.md
+*.md
+!README.md
