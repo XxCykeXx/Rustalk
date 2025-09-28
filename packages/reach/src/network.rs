@@ -1,17 +1,17 @@
-use tokio::net::{TcpListener, TcpStream};
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::sync::{RwLock, mpsc};
 use anyhow::{Result, anyhow};
-use uuid::Uuid;
-use log::{info, error, debug};
+use log::{debug, error, info};
+use std::collections::HashMap;
 use std::net::SocketAddr;
+use std::sync::Arc;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::{TcpListener, TcpStream};
+use tokio::sync::{RwLock, mpsc};
+use uuid::Uuid;
 
+use crate::crypto::CryptoEngine;
 use crate::identity::Identity;
 use crate::message::{Message, MessageType};
 use crate::peer::Peer;
-use crate::crypto::CryptoEngine;
 // Removed x25519_dalek imports - using simplified crypto
 
 pub struct PeerConnection {
@@ -33,11 +33,11 @@ impl PeerConnection {
         if let Some(secret) = &self.shared_secret {
             let encrypted = CryptoEngine::encrypt_message(message, secret)?;
             let mut stream = self.stream.write().await;
-            
+
             let data = format!("{}\n", encrypted);
             stream.write_all(data.as_bytes()).await?;
             stream.flush().await?;
-            
+
             debug!("Sent encrypted message to peer {}", self.peer.id);
             Ok(())
         } else {
@@ -49,18 +49,18 @@ impl PeerConnection {
         if let Some(secret) = &self.shared_secret {
             let mut stream = self.stream.write().await;
             let mut buffer = vec![0; 4096];
-            
+
             let n = stream.read(&mut buffer).await?;
             if n == 0 {
                 return Err(anyhow!("Connection closed"));
             }
-            
+
             let encrypted_data = String::from_utf8_lossy(&buffer[..n]);
             let encrypted_data = encrypted_data.trim();
-            
+
             let decrypted = CryptoEngine::decrypt_message(encrypted_data, secret)?;
             debug!("Received and decrypted message from peer {}", self.peer.id);
-            
+
             Ok(decrypted)
         } else {
             Err(anyhow!("No shared secret established"))
@@ -68,7 +68,10 @@ impl PeerConnection {
     }
 
     pub fn establish_shared_secret(&mut self, our_private: &[u8; 32], their_public: &[u8; 32]) {
-        self.shared_secret = Some(CryptoEngine::generate_shared_secret(our_private, their_public));
+        self.shared_secret = Some(CryptoEngine::generate_shared_secret(
+            our_private,
+            their_public,
+        ));
         info!("Shared secret established with peer {}", self.peer.id);
     }
 }
@@ -83,7 +86,7 @@ pub struct NetworkManager {
 impl NetworkManager {
     pub async fn new(identity: Identity) -> Result<Self> {
         let (message_sender, message_receiver) = mpsc::unbounded_channel();
-        
+
         Ok(NetworkManager {
             identity,
             connections: Arc::new(RwLock::new(HashMap::new())),
@@ -106,15 +109,21 @@ impl NetworkManager {
                 match listener.accept().await {
                     Ok((stream, addr)) => {
                         info!("New connection from {}", addr);
-                        
+
                         let connections = connections.clone();
                         let identity = identity.clone();
                         let message_sender = message_sender.clone();
-                        
+
                         tokio::spawn(async move {
                             if let Err(e) = Self::handle_incoming_connection(
-                                stream, addr, connections, identity, message_sender
-                            ).await {
+                                stream,
+                                addr,
+                                connections,
+                                identity,
+                                message_sender,
+                            )
+                            .await
+                            {
                                 error!("Error handling connection from {}: {}", addr, e);
                             }
                         });
@@ -142,21 +151,23 @@ impl NetworkManager {
             identity.keypair.public_key.clone(),
             identity.get_display_name(),
         );
-        
+
         let handshake_data = serde_json::to_string(&handshake_msg)?;
-        stream.write_all(format!("{}\n", handshake_data).as_bytes()).await?;
+        stream
+            .write_all(format!("{}\n", handshake_data).as_bytes())
+            .await?;
         stream.flush().await?;
 
         // Read peer's handshake
         let mut buffer = vec![0; 4096];
         let n = stream.read(&mut buffer).await?;
-        
+
         if n == 0 {
             return Err(anyhow!("Connection closed during handshake"));
         }
 
         let peer_handshake: Message = serde_json::from_slice(&buffer[..n])?;
-        
+
         if !matches!(peer_handshake.message_type, MessageType::Handshake) {
             return Err(anyhow!("Expected handshake message"));
         }
@@ -165,12 +176,12 @@ impl NetworkManager {
         // Save values before moving
         let sender_name = peer_handshake.sender_name.clone();
         let sender_id = peer_handshake.sender_id;
-        
+
         // Establish shared secret first
         let our_private = identity.get_private_key_bytes()?;
         let their_public_bytes = base64::Engine::decode(
             &base64::engine::general_purpose::STANDARD,
-            &peer_handshake.content
+            &peer_handshake.content,
         )?;
 
         let peer = Peer::new(
@@ -182,19 +193,19 @@ impl NetworkManager {
         );
 
         let mut connection = PeerConnection::new(peer, stream);
-        
+
         if their_public_bytes.len() != 32 {
             return Err(anyhow!("Invalid public key length"));
         }
-        
+
         let mut their_public = [0u8; 32];
         their_public.copy_from_slice(&their_public_bytes);
-        
+
         connection.establish_shared_secret(&our_private, &their_public);
         connection.peer.set_authenticated();
 
         let peer_id = connection.peer.id;
-        
+
         // Store connection
         {
             let mut conns = connections.write().await;
@@ -202,21 +213,25 @@ impl NetworkManager {
         }
 
         // Send connection established message
-        let _ = message_sender.send(Message::system_message(
-            format!("Connected to {}", sender_name)
-        ));
+        let _ = message_sender.send(Message::system_message(format!(
+            "Connected to {}",
+            sender_name
+        )));
 
-        info!("Successfully connected to peer {} ({})", peer_id, sender_name);
-        
+        info!(
+            "Successfully connected to peer {} ({})",
+            peer_id, sender_name
+        );
+
         Ok(())
     }
 
     pub async fn connect_to_peer(&self, address: &str) -> Result<Peer> {
         let stream = TcpStream::connect(address).await?;
         let addr: SocketAddr = address.parse()?;
-        
+
         info!("Connected to peer at {}", address);
-        
+
         // This is similar to handle_incoming_connection but for outgoing connections
         // For brevity, I'll implement a simplified version
         let peer = Peer::new(
@@ -228,7 +243,7 @@ impl NetworkManager {
         );
 
         let connection = PeerConnection::new(peer.clone(), stream);
-        
+
         // Store connection (simplified - in real implementation, complete handshake first)
         {
             let mut conns = self.connections.write().await;
@@ -240,7 +255,7 @@ impl NetworkManager {
 
     pub async fn send_message(&self, peer_id: &str, content: &str) -> Result<String> {
         let peer_uuid = Uuid::parse_str(peer_id)?;
-        
+
         let mut connections = self.connections.write().await;
         if let Some(connection) = connections.get_mut(&peer_uuid) {
             let message = Message::text_message(
@@ -249,14 +264,14 @@ impl NetworkManager {
                 content.to_string(),
                 self.identity.get_display_name(),
             );
-            
+
             let message_id = message.id.to_string();
             let message_json = serde_json::to_string(&message)?;
             connection.send_message(&message_json).await?;
-            
+
             // Send to local message handler
             let _ = self.message_sender.send(message);
-            
+
             Ok(message_id)
         } else {
             Err(anyhow!("Peer not found or not connected"))
@@ -295,7 +310,7 @@ impl NetworkManager {
             // Try to send a ping message
             let _ping_message = "PING".to_string();
             let start_time = std::time::Instant::now();
-            
+
             // For now, just return online if connection exists
             // In a real implementation, you'd send an actual ping and wait for response
             crate::peer::PeerPingStatus {
@@ -324,13 +339,13 @@ impl NetworkManager {
 
     pub async fn shutdown_connections(&self) {
         info!("Shutting down all connections...");
-        
+
         let mut connections = self.connections.write().await;
         for (peer_id, mut connection) in connections.drain() {
             connection.peer.set_disconnected();
             info!("Disconnected from peer {}", peer_id);
         }
-        
+
         info!("All connections shut down");
     }
 

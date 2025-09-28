@@ -1,11 +1,11 @@
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::sync::Arc;
 use std::net::SocketAddr;
+use std::sync::Arc;
 use tokio::sync::{RwLock, mpsc};
-use serde::{Serialize, Deserialize};
 
-use crate::{Identity, NetworkManager, Peer, Message, MessageType};
+use crate::{Identity, Message, MessageType, NetworkManager, Peer};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatSession {
@@ -67,7 +67,7 @@ impl SessionManager {
     pub async fn new(identity: Identity) -> Result<Self> {
         let network = NetworkManager::new(identity.clone()).await?;
         let (tx, rx) = mpsc::channel(100);
-        
+
         Ok(SessionManager {
             identity,
             network: Arc::new(RwLock::new(network)),
@@ -80,7 +80,7 @@ impl SessionManager {
     pub async fn start_session(&self, port: u16) -> Result<String> {
         let session_id = format!("session_{}", chrono::Utc::now().timestamp());
         let session = ChatSession::new(session_id.clone(), port);
-        
+
         {
             let mut current_session = self.current_session.write().await;
             *current_session = Some(session);
@@ -97,7 +97,7 @@ impl SessionManager {
     pub async fn connect_to_peer(&self, address: &str) -> Result<()> {
         let network = self.network.read().await;
         network.connect_to_peer(address).await?;
-        
+
         // Add peer to current session
         if let Some(session) = self.current_session.write().await.as_mut() {
             let peer_addr: SocketAddr = address.parse()?;
@@ -110,7 +110,7 @@ impl SessionManager {
             );
             session.add_peer(peer);
         }
-        
+
         Ok(())
     }
 
@@ -138,7 +138,10 @@ impl SessionManager {
 
         // Send through message channel
         if let Some(sender) = &self.message_sender {
-            sender.send(message).await.map_err(|e| anyhow::anyhow!("Failed to send message: {}", e))?;
+            sender
+                .send(message)
+                .await
+                .map_err(|e| anyhow::anyhow!("Failed to send message: {}", e))?;
         }
 
         Ok(())
@@ -172,13 +175,14 @@ impl SessionManager {
 
         let network = self.network.read().await;
         network.stop_listening().await?;
-        
+
         Ok(())
     }
 
     pub async fn list_recent_messages(&self, limit: usize) -> Vec<Message> {
         if let Some(session) = self.current_session.read().await.as_ref() {
-            let recent: Vec<Message> = session.get_recent_messages(limit)
+            let recent: Vec<Message> = session
+                .get_recent_messages(limit)
                 .into_iter()
                 .cloned()
                 .collect();

@@ -1,28 +1,35 @@
 [package]
 name = "rustalk"
-version = "0.0.0"
-edition = "2021"
-description = "Secure P2P terminal chat application"
-license = "Apache-2.0"
-authors = ["Rustalk Team"]
-repository = "https://github.com/muhammad-fiaz/Rustalk"
-homepage = "https://github.com/muhammad-fiaz/Rustalk"
-readme = "../README.md"
-keywords = ["p2p", "chat", "terminal", "secure", "encryption"]
+version.workspace = true
+edition.workspace = true
+description = "Binary installer and starter for Rustalk - delegates operations to rus CLI"
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "README.md"
+keywords = ["p2p", "chat", "terminal", "cli", "rustalk"]
+categories = ["command-line-utilities", "network-programming"]
 
+# Library configuration for npm/nodejs integration
 [lib]
 name = "rustalk_lib"
 crate-type = ["cdylib", "rlib"]
 
+# Main binary executable
 [[bin]]
 name = "rustalk_cli"
 path = "src/main.rs"
 
 [dependencies]
-reach = { path = "../packages/reach" }
+reach = { workspace = true }
+rus = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+
+# [dev-dependencies]
+# Add development-only dependencies here if needed
 uuid = { workspace = true }
 anyhow = { workspace = true }
 log = { workspace = true }

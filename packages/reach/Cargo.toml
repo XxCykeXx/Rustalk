@@ -1,14 +1,19 @@
 [package]
 name = "reach"
-version = "0.0.0"
-edition = "2021"
-description = "P2P networking and encryption library for Rustalk"
-license = "MIT"
-authors = ["Rustalk Team"]
-repository = "https://github.com/muhammad-fiaz/Rustalk"
-homepage = "https://github.com/muhammad-fiaz/Rustalk"
-readme = "../../README.md"
-keywords = ["p2p", "networking", "encryption", "chat", "security"]
+version.workspace = true
+edition.workspace = true
+description = "Core P2P chat and connections functionality for Rustalk"
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "README.md"
+keywords = ["p2p", "chat", "encryption", "networking", "rustalk"]
+categories = ["network-programming", "cryptography"]
+
+[lib]
+name = "reach"
+crate-type = ["rlib"]
 
 [dependencies]
 tokio = { workspace = true }

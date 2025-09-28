@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum PeerStatus {
@@ -65,7 +65,10 @@ impl Peer {
     }
 
     pub fn is_connected(&self) -> bool {
-        matches!(self.status, PeerStatus::Connected | PeerStatus::Authenticated)
+        matches!(
+            self.status,
+            PeerStatus::Connected | PeerStatus::Authenticated
+        )
     }
 
     pub fn connection_duration(&self) -> Option<chrono::Duration> {

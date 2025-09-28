@@ -1,23 +1,37 @@
 [package]
 name = "rus"
-version = "0.0.0"
-edition = "2021"
-description = "CLI wrapper for Rustalk P2P chat"
-license = "MIT"
-authors = ["Rustalk Team"]
-repository = "https://github.com/muhammad-fiaz/Rustalk"
-homepage = "https://github.com/muhammad-fiaz/Rustalk"
-readme = "../../README.md"
+version.workspace = true
+edition.workspace = true
+description = "CLI interface for all operations, system config, settings, and user management"
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "README.md"
 keywords = ["cli", "p2p", "chat", "terminal", "rustalk"]
+categories = ["command-line-utilities", "network-programming"]
+
+[lib]
+name = "rus"
+crate-type = ["rlib"]
 
 [[bin]]
 name = "rus"
 path = "src/main.rs"
 
 [dependencies]
-reach = { path = "../reach" }
+reach = { workspace = true }
 tokio = { workspace = true }
 clap = { workspace = true }
 anyhow = { workspace = true }
 log = { workspace = true }
 env_logger = { workspace = true }
+crossterm = { workspace = true }
+ratatui = { workspace = true }
+chrono = { workspace = true }
+dirs = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# [dev-dependencies]
+# Add development-only dependencies here if needed

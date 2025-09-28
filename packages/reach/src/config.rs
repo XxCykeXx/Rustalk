@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use anyhow::{Result, anyhow};
-use std::path::PathBuf;
 use crate::identity::Identity;
+use anyhow::{Result, anyhow};
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -31,7 +31,8 @@ impl Default for Config {
                 email: "anonymous@rustalk.local".to_string(),
                 name: "Anonymous".to_string(),
                 password: "default".to_string(),
-            }).expect("Failed to create default identity"),
+            })
+            .expect("Failed to create default identity"),
             default_port: 5000,
             auto_accept_connections: false,
             max_peers: 10,
@@ -52,14 +53,21 @@ pub fn get_config_dir() -> Result<PathBuf> {
         let dir = home.join(".rustalk");
         dir
     } else {
-        return Err(anyhow!("Could not determine config directory - no home or config directory found"));
+        return Err(anyhow!(
+            "Could not determine config directory - no home or config directory found"
+        ));
     };
-    
+
     // Ensure directory exists with proper permissions
     if !config_dir.exists() {
-        std::fs::create_dir_all(&config_dir)
-            .map_err(|e| anyhow!("Failed to create config directory {}: {}", config_dir.display(), e))?;
-        
+        std::fs::create_dir_all(&config_dir).map_err(|e| {
+            anyhow!(
+                "Failed to create config directory {}: {}",
+                config_dir.display(),
+                e
+            )
+        })?;
+
         // Set appropriate permissions on Unix systems
         #[cfg(unix)]
         {
@@ -72,7 +80,7 @@ pub fn get_config_dir() -> Result<PathBuf> {
                 .map_err(|e| anyhow!("Failed to set config directory permissions: {}", e))?;
         }
     }
-    
+
     Ok(config_dir)
 }
 
@@ -85,31 +93,28 @@ pub fn save_config(config: &Config) -> Result<()> {
     let config_file = get_config_file()?;
     let json = serde_json::to_string_pretty(config)
         .map_err(|e| anyhow!("Failed to serialize config: {}", e))?;
-    
-    std::fs::write(config_file, json)
-        .map_err(|e| anyhow!("Failed to write config file: {}", e))
+
+    std::fs::write(config_file, json).map_err(|e| anyhow!("Failed to write config file: {}", e))
 }
 
 pub fn load_config() -> Result<Config> {
     let config_file = get_config_file()?;
-    
+
     if !config_file.exists() {
         let default_config = Config::default();
         save_config(&default_config)?;
         return Ok(default_config);
     }
-    
+
     let contents = std::fs::read_to_string(config_file)
         .map_err(|e| anyhow!("Failed to read config file: {}", e))?;
-    
+
     let config: Config = serde_json::from_str(&contents)
         .map_err(|e| anyhow!("Failed to parse config file: {}", e))?;
-    
+
     Ok(config)
 }
 
 pub fn config_exists() -> bool {
-    get_config_file()
-        .map(|path| path.exists())
-        .unwrap_or(false)
+    get_config_file().map(|path| path.exists()).unwrap_or(false)
 }

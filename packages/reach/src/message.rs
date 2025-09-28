@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,7 +51,7 @@ impl Message {
     ) -> Self {
         let sender_id = Uuid::new_v4(); // This should come from identity in real usage
         let recipient_id = target_peer.and_then(|_| Some(Uuid::new_v4())); // This should be resolved from peer lookup
-        
+
         Message {
             id: Uuid::new_v4(),
             sender_id,
@@ -114,7 +114,11 @@ pub struct EncryptedMessage {
 }
 
 impl EncryptedMessage {
-    pub fn from_message(message: &Message, encrypted_content: String, sender_public_key: String) -> Self {
+    pub fn from_message(
+        message: &Message,
+        encrypted_content: String,
+        sender_public_key: String,
+    ) -> Self {
         EncryptedMessage {
             sender_id: message.sender_id,
             recipient_id: message.recipient_id.unwrap_or(Uuid::nil()),

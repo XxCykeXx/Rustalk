@@ -1,15 +1,17 @@
 {
   "name": "rustalk",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "Modular P2P communication platform - reach (core) + rus (CLI) + rustalk (unified experience)",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "type": "module",
   "bin": {
-    "rustalk": "dist/bin/rustalk.js"
+    "rustalk": "dist/bin/rustalk.js",
+    "rus": "bin/rus"
   },
   "files": [
+    "bin/",
     "dist/bin/rustalk.js",
     "dist/scripts/postinstall.js",
     "target/release/rustalk_cli*",

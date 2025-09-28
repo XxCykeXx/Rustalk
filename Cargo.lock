@@ -1034,7 +1034,7 @@ dependencies = [
 
 [[package]]
 name = "reach"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "aes-gcm",
  "anyhow",
@@ -1104,19 +1104,25 @@ checksum = "caf4aa5b0f434c91fe5c7f1ecb6a5ece2130b02ad2a590589dda5146df959001"
 
 [[package]]
 name = "rus"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "anyhow",
+ "chrono",
  "clap",
+ "crossterm",
+ "dirs",
  "env_logger",
  "log",
+ "ratatui",
  "reach",
+ "serde",
+ "serde_json",
  "tokio",
 ]
 
 [[package]]
 name = "rustalk"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1130,6 +1136,7 @@ dependencies = [
  "napi-derive",
  "ratatui",
  "reach",
+ "rus",
  "serde",
  "serde_json",
  "tokio",

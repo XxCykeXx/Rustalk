@@ -1,6 +1,6 @@
 # Contributing to Rustalk
 
-Welcome to Rustalk! We're excited that you're interested in contributing to our secure P2P terminal chat application. This guide will help you get started with contributing to this project.
+Welcome to Rustalk! We're excited that you're interested in contributing to our modular P2P communication platform. This guide will help you get started with contributing to this project.
 
 ## Table of Contents
 
@@ -14,18 +14,23 @@ Welcome to Rustalk! We're excited that you're interested in contributing to our 
 - [Making Changes](#making-changes)
 - [Submitting Pull Requests](#submitting-pull-requests)
 - [Reporting Issues](#reporting-issues)
-- [Architecture Guidelines](#architecture-guidelines)
 
 ## About Rustalk
 
-Rustalk is a secure, peer-to-peer terminal chat application built with Rust for the core functionality and TypeScript for the CLI interface. The application features:
+Rustalk is a modular, secure peer-to-peer communication platform with three main components:
+
+- **reach** - Core P2P networking library with end-to-end encryption
+- **rus** - CLI operations and user management interface  
+- **rustalk** - Binary installer and starter with npm integration
+
+### Key Features
 
 - **End-to-end encryption** using AES-GCM with SHA2-based key derivation
 - **P2P networking** with async Tokio runtime
 - **Cross-platform support** (Windows, Linux, macOS)
-- **Native Node.js bindings** via NAPI for npm integration
-- **Online status checking** before sending messages
-- **Minimal TypeScript CLI** that delegates to Rust binary
+- **Dual installation** methods (Cargo and npm)
+- **Modular architecture** allowing independent use of components
+- **Clean dependency hierarchy** (reach ← rus ← rustalk)
 
 ## Getting Started
 
@@ -94,38 +99,53 @@ We recommend using **VS Code** with the following extensions:
 
 ```
 rustalk-workflow/
-├── src/                    # TypeScript CLI source
-│   ├── index.ts           # Main CLI entry point
-│   └── types.ts           # TypeScript type definitions
-├── rustalk/               # Main Rust application (moved from packages)
-│   ├── src/
-│   │   ├── main.rs        # CLI binary entry point
-│   │   ├── lib.rs         # NAPI bindings for Node.js
-│   │   ├── app.rs         # Core application logic
-│   │   ├── setup.rs       # User setup and configuration
-│   │   └── ui.rs          # Terminal UI components
-│   └── Cargo.toml
-├── packages/
-│   ├── reach/             # Core P2P networking library
+├── packages/                   # Library packages
+│   ├── reach/                 # Core P2P networking library
 │   │   ├── src/
-│   │   │   ├── lib.rs
-│   │   │   ├── config.rs  # Configuration management
-│   │   │   ├── crypto.rs  # Encryption/decryption
-│   │   │   ├── identity.rs # User identity management
-│   │   │   ├── network.rs # P2P networking
-│   │   │   └── peer.rs    # Peer connection management
-│   │   └── Cargo.toml
-│   └── rus/               # Additional CLI utilities
-│       └── src/main.rs
-├── tests/                 # Test suite
+│   │   │   ├── lib.rs         # Library entry point
+│   │   │   ├── config.rs      # Configuration management
+│   │   │   ├── crypto.rs      # Encryption/decryption
+│   │   │   ├── identity.rs    # User identity management
+│   │   │   ├── network.rs     # P2P networking
+│   │   │   ├── peer.rs        # Peer connection management
+│   │   │   └── session.rs     # Session management
+│   │   ├── Cargo.toml
+│   │   ├── README.md
+│   │   └── LICENSE
+│   └── rus/                   # CLI operations library + binary
+│       ├── src/
+│       │   ├── lib.rs         # Library entry point
+│       │   ├── main.rs        # CLI binary
+│       │   ├── path_manager.rs # System PATH management
+│       │   └── user_manager.rs # User management
+│       ├── Cargo.toml
+│       ├── README.md
+│       └── LICENSE
+├── rustalk/                   # Main binary package
+│   ├── src/
+│   │   ├── main.rs           # Installer/starter binary
+│   │   └── lib.rs            # Library for npm integration
+│   ├── Cargo.toml
+│   ├── README.md
+│   └── LICENSE
+├── src/                       # TypeScript npm wrapper
+│   ├── index.ts              # Main npm entry point
+│   └── types.ts              # TypeScript definitions
+├── bin/                       # CLI scripts
+│   └── rustalk.ts            # npm CLI script
+├── tests/                     # Test suite
 │   ├── cross_platform.test.ts
 │   ├── cli.test.ts
 │   └── integration_test.rs
-├── target/                # Rust build artifacts
-├── Cargo.toml            # Workspace configuration
-├── package.json          # Node.js dependencies
-├── tsconfig.json         # TypeScript configuration
-└── bun.lock              # Bun lockfile
+├── target/                    # Rust build artifacts
+├── dist/                      # TypeScript build output
+├── Cargo.toml                # Workspace configuration
+├── package.json              # Node.js package config
+├── tsconfig.json             # TypeScript configuration
+├── README.md                 # Main project documentation
+├── CONTRIBUTING.md           # This file
+├── LICENSE                   # Apache 2.0 license
+└── bun.lock                  # Bun lockfile
 ```
 
 ## Building the Project
@@ -134,31 +154,41 @@ rustalk-workflow/
 
 1. **Full build (Rust + TypeScript):**
    ```bash
-   bun run src/index.ts build
+   bun run build
    ```
 
-2. **Rust only (release):**
+2. **Rust workspace (release):**
    ```bash
-   cargo build --release
+   cargo build --release --workspace
    ```
 
-3. **Rust only (debug):**
+3. **Rust workspace (debug):**
    ```bash
-   cargo build
+   cargo build --workspace
    ```
 
-4. **Clean build:**
+4. **TypeScript only:**
    ```bash
-   cargo clean
-   bun run src/index.ts build
+   bun run build:ts
    ```
 
-### Build Targets
+5. **Clean build:**
+   ```bash
+   bun run clean
+   bun run build
+   ```
 
-- **rustalk_cli**: Main CLI binary (`target/release/rustalk_cli.exe` on Windows)
-- **rustalk_lib**: NAPI library for Node.js integration
-- **reach**: Core P2P networking library
-- **rus**: Additional utilities
+### Available Binaries
+
+- **rustalk_cli**: Main installer/starter binary
+- **rus**: CLI operations binary  
+- **reach**: Library only (no binary)
+
+### Package Types
+
+- **reach**: Pure library package (`rlib`)
+- **rus**: Library + binary package (`rlib` + binary)
+- **rustalk**: Primary binary + npm library (`cdylib`, `rlib` + binary)
 
 ## Running Tests
 
@@ -166,22 +196,29 @@ rustalk-workflow/
 
 1. **All tests:**
    ```bash
-   bun run src/index.ts test
+   bun run test
    ```
 
-2. **Rust tests only:**
+2. **Rust workspace tests:**
    ```bash
-   cargo test
+   cargo test --workspace
    ```
 
 3. **TypeScript tests only:**
    ```bash
-   bun test
+   bun test tests/**/*.test.ts
    ```
 
-4. **Specific test file:**
+4. **Specific package tests:**
    ```bash
-   bun test tests/cross_platform.test.ts
+   cargo test -p reach
+   cargo test -p rus
+   cargo test -p rustalk
+   ```
+
+5. **Integration tests:**
+   ```bash
+   bun run test:cli
    ```
 
 ### Test Coverage
@@ -281,36 +318,38 @@ When reporting issues, please include:
 - **Expected vs actual behavior**
 - **Error messages** (full stack traces)
 
-## Architecture Guidelines
+## Package Development Guidelines
 
-### Design Principles
+### Adding Features to Packages
 
-1. **Rust Core, TypeScript Wrapper**: All business logic in Rust, minimal TypeScript CLI
-2. **Native CPU Bindings**: Use NAPI, not WASM, for Node.js integration
-3. **Cross-Platform First**: Support Windows, Linux, and macOS equally
-4. **Security by Design**: End-to-end encryption, secure key management
-5. **Async Everything**: Use Tokio for all I/O operations
+1. **reach (Core Library)**:
+   - Implement core P2P functionality, encryption, networking
+   - All changes should be library-focused (no main.rs)
+   - Export functionality through `lib.rs`
 
-### Adding New Features
+2. **rus (CLI Operations)**:
+   - Implement user-facing CLI commands and operations
+   - Can be used as both library and binary
+   - Imports and uses `reach` functionality
 
-1. **Core Logic**: Implement in Rust (`rustalk/src/` or `packages/reach/src/`)
-2. **CLI Interface**: Add command in TypeScript (`src/index.ts`)
-3. **NAPI Bindings**: Expose functionality via `rustalk/src/lib.rs`
-4. **Tests**: Add tests in `tests/` directory
-5. **Documentation**: Update this file and relevant docs
+3. **rustalk (Installer/Starter)**:
+   - Primarily binary package for installation and quick start
+   - Delegates operations to `rus` for efficiency
+   - Imports both `reach` and `rus` for library usage
 
-### Performance Considerations
+### Code Organization
 
-- Use `Arc<RwLock<T>>` for shared state
-- Prefer `async/await` over blocking operations
-- Use `serde` for efficient serialization
-- Keep TypeScript CLI lightweight
+- **Modular Design**: Each package has a specific responsibility
+- **Clean Dependencies**: reach ← rus ← rustalk (no circular dependencies)
+- **Library First**: Prefer library functions over subprocess calls
+- **Cross-Platform**: Support Windows, Linux, and macOS equally
 
-### Security Considerations
+### Security Best Practices
 
+- Use Apache 2.0 license consistently across all packages
 - Never store passwords in plaintext
 - Use secure random number generation
-- Validate all inputs
+- Validate all inputs thoroughly
 - Use constant-time comparison for sensitive data
 
 ## Getting Help
