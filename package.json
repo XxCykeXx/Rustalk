@@ -8,13 +8,12 @@
   "type": "module",
   "bin": {
     "rustalk": "dist/bin/rustalk.js",
-    "rus": "bin/rus"
+    "rus": "dist/bin/rus.js"
   },
   "files": [
     "bin/",
-    "dist/bin/rustalk.js",
     "dist/scripts/postinstall.js",
-    "target/release/rustalk_cli*",
+    "target/release/rustalk*",
     "target/release/rus*",
     "target/release/*.dll",
     "target/release/*.exe",

@@ -18,7 +18,7 @@ crate-type = ["cdylib", "rlib"]
 
 # Main binary executable
 [[bin]]
-name = "rustalk_cli"
+name = "rustalk"
 path = "src/main.rs"
 
 [dependencies]
